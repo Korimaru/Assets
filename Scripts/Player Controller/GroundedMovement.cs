@@ -24,6 +24,9 @@ public class GroundedMovement : MonoBehaviour
     protected Rigidbody2D m_Rigidbody2D;
     protected bool m_FacingRight = true;  // For determining which way the player is currently facing.
 
+	protected GameObject movementGoal; //Target for this object to move towards
+	protected bool goalIsPersistant; //If false, goal will be cleared when reached
+
     protected void Awake()
     {
         // Setting up references.
@@ -31,6 +34,8 @@ public class GroundedMovement : MonoBehaviour
         m_CeilingCheck = transform.Find("CeilingCheck");
         m_Anim = GetComponent<Animator>();
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
+
+		goalIsPersistant = false;
     }
 
 
@@ -103,7 +108,6 @@ public class GroundedMovement : MonoBehaviour
         }
     }
 
-
     protected void Flip()
     {
         // Switch the way the player is labelled as facing.
@@ -114,4 +118,49 @@ public class GroundedMovement : MonoBehaviour
         theScale.x *= -1;
         transform.localScale = theScale;
     }
+
+	//Moves component towards the goal
+	public void MoveToGoal()
+	{
+		//If a goal exists
+		if (movementGoal)
+		{
+			//Get the X values of this object and the goal
+			float thisX = this.transform.position.x;
+			float goalX = movementGoal.transform.position.x;
+
+			//If this object is to the right of the goal, move left.
+			if ((thisX ) < (goalX))
+			{
+				Move(1, false, false);
+			}
+			//If this object is to the left of the goal, move right.
+			else if (thisX > (goalX))
+			{
+				Move(-1, false, false);
+			}
+			//If the goal has been reached
+			else
+			{
+				//Null the goal if it is not persistant
+				if(!goalIsPersistant)
+				{
+					RemoveGoal();
+				}
+			}
+		}
+	}
+
+	//Sets movement goal
+	public void SetMovementGoal(GameObject goal, bool persistant)
+	{
+		movementGoal = goal;
+		goalIsPersistant = persistant;
+	}
+
+	//Nulls movement goal
+	public void RemoveGoal()
+	{
+		movementGoal = null;
+	}
 }
